@@ -1,7 +1,7 @@
 more_info = """
 羽球等級評估機器人
 
-版本：v0.1
+版本：v0.2
 Author: Showaykerker
 """
 
