@@ -10,7 +10,8 @@ class Evaluator:
 
     def reset(self):
         self._init = True
-        self.data = {}
+        self._completed = False
+        self.answer = {}
         self.question_list = list(self.questions.keys())
         self.current_question_index = 0
 
@@ -41,13 +42,13 @@ class Evaluator:
         if answer not in self.questions[current_question]:
             return TextSendMessage(text="無效的輸入，請選擇 1, 2, 3, 或 4")
 
-        self.data[current_question] = answer
+        self.answer[current_question] = answer
         self.current_question_index += 1
 
         return self.get_next_question()
 
     def is_completed(self):
-        return len(self.data) == len(self.questions)
+        return len(self.answer) == len(self.questions)
 
     def get_result(self):
         level = self.evaluate()
@@ -111,15 +112,15 @@ class Evaluator:
             msg += f"問題 {index + 1}: {question}\n"
             for key, value in self.questions[question].items():
                 msg += f"  {key}: {value}\n"
-            if question in self.data:
-                msg += f"回答: {self.data[question]}\n"
+            if question in self.answer:
+                msg += f"回答: {self.answer[question]}\n"
             msg += "\n"
 
         if self.is_completed():
             level = self.evaluate()
             msg += f"評估結果: {level} 級\n"
         else:
-            remaining = len(self.questions) - len(self.data)
+            remaining = len(self.questions) - len(self.answer)
             msg += f"還有 {remaining} 題未回答\n"
 
         return msg
