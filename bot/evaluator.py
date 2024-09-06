@@ -8,8 +8,17 @@ from linebot.v3.messaging import (
 
 class Evaluator:
     def __init__(self, user_id: str):
-        with open('questions.json', 'r', encoding='utf-8') as f:
-            self.questionnaire = json.load(f)
+        possible_questions_path = ['questions.json', 'bot/questions.json']
+        for path in possible_questions_path:
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    self.questionnaire = json.load(f)
+                break
+            except FileNotFoundError:
+                pass
+        else:
+            app.logger.error("quesions.json not found")
+            raise FileNotFoundError("questions.json not found")
         self.user_id = user_id
         self._init = False
         self._completed = False

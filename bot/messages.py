@@ -9,10 +9,10 @@ more_info = """
 羽球等級評估機器人
 
 - 問卷依據台灣羽球推廣協會制定的雙打標準設計。
-- 詳細判斷流程可參考下列連結中的 questions.json。
+- 詳細判斷流程可參考下列連結中的README。
 - 目前測試中，歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
 
-Version：v0.5.2
+Version：v0.5.3
 Author: showaykerker
 GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
 """
