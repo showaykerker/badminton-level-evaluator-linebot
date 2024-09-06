@@ -134,3 +134,39 @@ class Evaluator:
             msg += f"還有 {remaining} 題未回答\n"
 
         return msg
+
+def main():
+    print("歡迎使用羽球程度評估系統！")
+    evaluator = Evaluator("local_user")
+
+    while True:
+        command = input("請輸入指令 (開始測試/重新開始/結束程式): ")
+        if command == "結束程式":
+            print("感謝使用，再見！")
+            break
+        elif command in ["開始測試", "重新開始", ""]:
+            evaluator.reset()
+            while not evaluator.is_completed():
+                question = evaluator.get_next_question()
+                if isinstance(question, TemplateSendMessage):
+                    print(f"\n{question.template.text}")
+                    for action in question.template.actions:
+                        print(f"{action.text}: {action.label.split(': ')[1]}")
+                elif isinstance(question, TextSendMessage):
+                    print(question.text)
+                    break
+
+                answer = input("請輸入您的答案 (1-4): ")
+                result = evaluator.answer_question(answer)
+                if isinstance(result, TextSendMessage):
+                    print(result.text)
+
+            print("\n詳細問卷:")
+            print(evaluator)
+        elif command in ["debug", "d"]:
+            print(evaluator.debug())
+        else:
+            print("無效的指令，請重新輸入。")
+
+if __name__ == "__main__":
+    main()
