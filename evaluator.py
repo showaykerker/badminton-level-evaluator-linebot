@@ -79,7 +79,7 @@ class Evaluator:
 
     def get_result(self):
         level = self.evaluate()
-        return TextMessage(text=f"評估完成！您的羽球分級評估為: {level}。此結果僅供參考。")
+        return TextMessage(text=f"評估完成！\n您的羽球分級評估為: {level}。\n此結果僅供參考。")
 
     def debug(self):
         if not self.is_completed():
@@ -87,8 +87,7 @@ class Evaluator:
         msg = f"User ID: {self.user_id}\n"
         msg += "="*20 + "\n"
         for q_id, answer in self.answers.items():
-            question = next(q for q in self.questionnaire['questions'] if q['id'] == q_id)
-            msg += f"{answer['text']} | {question['text']}\n"
+            msg += f"{answer['text']} | {q_id}\n"
         msg += "="*20 + "\n"
         msg += f"評估結果: {self.evaluate()}\n"
         return msg
