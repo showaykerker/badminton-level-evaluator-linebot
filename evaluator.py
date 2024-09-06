@@ -38,7 +38,7 @@ class Evaluator:
         buttons = [
             MessageAction(
                 label=option['text'][:20],  # Label 最多 20 個字
-                text=str(i+1)
+                text=options[i]['text']
             ) for i, option in enumerate(options)
         ]
         return TemplateMessage(
@@ -51,6 +51,7 @@ class Evaluator:
         )
 
     def answer_question(self, answer: str):
+
         if self.is_completed():
             return self.get_result()
 
@@ -58,10 +59,9 @@ class Evaluator:
         if not question:
             return TextMessage(text="問題不存在")
 
-        if not (1 <= int(answer) <= len(question['options'])):
-            return TextMessage(text="無效的輸入，請選擇有效的選項")
-
-        option = question['options'][int(answer) - 1]
+        # the answer is now the text of the option selected, not the index
+        # option = question['options'][int(answer) - 1]
+        option = next((o for o in question['options'] if o['text'] == answer), None)
         self.answers[self.current_question_id] = option
 
         if 'result' in option:
