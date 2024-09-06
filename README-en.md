@@ -21,14 +21,14 @@ This questionnaire is designed based on the classification system established by
 
 ```mermaid
 graph TD
-    A[Start] --> B{"1) Familiar with rules and etiquette?"}
+    A[Start] --> B{"1.Familiar with rules and etiquette?"}
     B -->|No| Z1[Level 1]
-    B -->|Yes| C{"2) High clear rally?"}
+    B -->|Yes| C{"2.High clear rally?"}
     C -->|Less than 10 shots| Z1
-    C -->|10 shots or more| D{"3) Serve success rate?"}
+    C -->|10 shots or more| D{"3.Serve success rate?"}
     D -->|Less than 50%| Z1
     D -->|50-90%| Z2[Level 2]
-    D -->|Above 90%| E{"4) Correct grip?"}
+    D -->|Above 90%| E{"4.Correct grip?"}
     E -->|No| Z3[Level 3]
     E -->|Yes| F[Continue to Elementary assessment]
 
@@ -48,11 +48,11 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Continue from Beginner assessment] --> F{"5) Long shot ability?"}
+    A[Continue from Beginner assessment] --> F{"5.Long shot ability?"}
     F -->|None apply| Z3[Level 3]
     F -->|Male backco
 
-urt/Female mid-backcourt| G{"6) Basic footwork and rotation?"}
+urt/Female mid-backcourt| G{"6.Basic footwork and rotation?"}
     G -->|No understanding| Z4[Level 4]
     G -->|Basic understanding| Z5[Level 5]
     G -->|Familiar and applied| H[Continue to Elementary-Intermediate assessment]
@@ -73,9 +73,9 @@ urt/Female mid-backcourt| G{"6) Basic footwork and rotation?"}
 
 ```mermaid
 graph TD
-    A[Continue from Elementary assessment] --> H{"7) Smash, drop shot, and long shot?"}
+    A[Continue from Elementary assessment] --> H{"7.Smash, drop shot, and long shot?"}
     H -->|Can use but unstable| Z6[Level 6]
-    H -->|Over 70% stable| I{"8) Defense ability?"}
+    H -->|Over 70% stable| I{"8.Defense ability?"}
     I -->|Basic, no variation| Z7[Level 7]
     I -->|Varied or threatening| J[Continue to Intermediate assessment]
 
@@ -94,11 +94,11 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Continue from Elementary-Intermediate assessment] --> J{"9) Shot accuracy?"}
+    A[Continue from Elementary-Intermediate assessment] --> J{"9.Shot accuracy?"}
     J -->|Over 70%| Z8[Level 8]
-    J -->|Over 90% for three types| K{"10) Strategy and rotation?"}
+    J -->|Over 90% for three types| K{"10.Strategy and rotation?"}
     K -->|Basic familiarity| Z9[Level 9]
-    K -->|Can apply effectively| L{"11) Backhand and defense?"}
+    K -->|Can apply effectively| L{"11.Backhand and defense?"}
     L -->|Proficient and threatening| Z11[Level 11]
     L -->|Highly aggressive| Z13["Levels 13-18"]
 
