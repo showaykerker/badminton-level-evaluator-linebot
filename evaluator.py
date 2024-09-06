@@ -44,7 +44,7 @@ class Evaluator:
         return TemplateMessage(
             alt_text="問題",
             template=ButtonsTemplate(
-                title="請回答以下問題",
+                title=f"請回答以下問題 ({question['id']}/{len(self.questionnaire['questions'])})",
                 text=question['text'],
                 actions=buttons[:4]  # Line Bot 限制最多 4 個按鈕
             )
