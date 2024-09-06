@@ -87,7 +87,7 @@ class Evaluator:
         msg = f"User ID: {self.user_id}\n"
         msg += "="*20 + "\n"
         for q_id, answer in self.answers.items():
-            msg += f"{answer['text']} | {q_id}\n"
+            msg += f"{q_id} | {answer['text']}\n"
         msg += "="*20 + "\n"
         msg += f"評估結果: {self.evaluate()}\n"
         return msg

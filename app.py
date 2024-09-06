@@ -12,11 +12,12 @@ from linebot.v3.messaging import (
     MessagingApi,
     ReplyMessageRequest,
     TextMessage,
-    ImageMessage
+    FlexMessage,
+    FlexBubble
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
-from messages import more_info, level_table_url
+from messages import more_info, level_table_flex_message_content
 from evaluator import Evaluator
 
 if os.environ.get('ENV') != 'production':
@@ -76,9 +77,10 @@ def handle_message(event):
     elif user_msg == "更多資訊":
         response_msg = TextMessage(text=more_info)
     elif user_msg == "分級表":
-        response_msg = ImageMessage(
-            original_content_url=level_table_url,
-            preview_image_url=level_table_url
+        app.logger.info(f"level table flex message: {json.dumps(level_table_flex_message_content, indent=4)}")
+        response_msg = FlexMessage(
+            alt_text="分級表",
+            contents=FlexBubble(**level_table_flex_message_content)
         )
     elif user_msg in ["1", "2", "3", "4"] and evaluator.is_init():
         response_msg = evaluator.answer_question(user_msg)
