@@ -18,6 +18,7 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
 from messages import more_info, level_table_url
 from evaluator import Evaluator
+from local_test_utils import FakeEvent
 
 if os.environ.get('ENV') != 'production':
     from dotenv import load_dotenv
@@ -29,6 +30,8 @@ configuration = Configuration(access_token=os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 
 EVALUATORS = {}
+
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -51,64 +54,65 @@ def callback():
         return 'OK'
 
 def handle_local_request(body):
-    body_json = json.loads(body)
-    for event in body_json['events']:
-        if event['type'] == 'message':
-            if event['message']['type'] == 'text':
-                handle_message(event)
+    event = json.loads(body)['events'][0]
+    user_id = event['source']['userId']
+    msg_text = event['message']['text']
+    fake_event = FakeEvent(user_id, msg_text)
+    response_msg = handle_message(fake_event)
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    if event['source']['type'] != "user":
-        app.logger.info(f"Source type is not user: {event['source']}")
+    if event.source.type != "user":
+        app.logger.info(f"Source type is not user: {event.source}")
         return
 
     try:
-        app.logger.info(f"Get user_id from event.source: {event['source']['userId']}")
+        app.logger.info(f"Get user_id from event.source: {event.source.user_id}")
     except:
-        app.logger.error(f"Can not get user_id from event.source: {event['source']}")
+        app.logger.error(f"Can not get user_id from event.source: {event.source}")
         return
 
-    user_id = event['source']['userId']
+    user_id = event.source.user_id
 
     if user_id not in EVALUATORS:
         EVALUATORS[user_id] = Evaluator(user_id)
 
     evaluator = EVALUATORS[user_id]
+    user_msg = event.message.text
 
-    if event['message']['text'] in ["開始測試", "重新開始"]:
+    if user_msg in ["開始測試", "重新開始", "a"]:
         evaluator.reset()
-        message = evaluator.get_next_question()
-    elif event['message']['text'] == "更多資訊":
-        message = TextMessage(text=more_info)
-    elif event['message']['text'] == "分級表":
-        message = ImageMessage(
+        response_msg = evaluator.get_next_question()
+    elif user_msg == "更多資訊":
+        response_msg = TextMessage(text=more_info)
+    elif user_msg == "分級表":
+        response_msg = ImageMessage(
             original_content_url=level_table_url,
             preview_image_url=level_table_url
         )
-    elif event['message']['text'] in ["1", "2", "3", "4"] and evaluator.is_init():
-        message = evaluator.answer_question(event['message']['text'])
+    elif user_msg in ["1", "2", "3", "4"] and evaluator.is_init():
+        response_msg = evaluator.answer_question(user_msg)
     elif not evaluator.is_init():
-        message = TextMessage(text="請輸入「開始測試」來開始評估")
+        response_msg = TextMessage(text="請輸入「開始測試」來開始評估")
     else:
         # message = TextMessage(text="請回答 1, 2, 3, 4 或「重新開始」")
-        app.logger.info(f"Unknown message: {event['message']['text']}")
+        app.logger.info(f"Unknown message: {user_msg}")
         if os.environ.get('ENV') == 'local':
-            print(f"Unknown message: {event['message']['text']}")
+            print(f"Unknown message: {user_msg}")
         return
 
     if os.environ.get('ENV') == 'local':
         try:
-            print(f"Would send message: {message.text}")
+            print(f"Would send message: {response_msg.text}")
         except AttributeError:
-            print(f"Would send message: {message}")
+            print(f"Would send message: {response_msg}")
     else:
         with ApiClient(configuration) as api_client:
             line_bot_api = MessagingApi(api_client)
             line_bot_api.reply_message_with_http_info(
                 ReplyMessageRequest(
                     reply_token=event['replyToken'],
-                    messages=[message]
+                    messages=[response_msg]
                 )
             )
 
