@@ -18,7 +18,6 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
 from messages import more_info, level_table_url
 from evaluator import Evaluator
-from local_test_utils import FakeEvent
 
 if os.environ.get('ENV') != 'production':
     from dotenv import load_dotenv
@@ -31,34 +30,23 @@ handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 
 EVALUATORS = {}
 
-
-
 @app.route("/callback", methods=['POST'])
 def callback():
-    if os.environ.get('ENV') == 'local':
-        # 在本地環境中，直接處理請求體
-        body = request.get_data(as_text=True)
-        app.logger.info("Request body: " + body)
-        handle_local_request(body)
-        return 'OK'
-    else:
-        # 在非本地環境中，使用正常的簽名驗證流程
-        signature = request.headers['X-Line-Signature']
-        body = request.get_data(as_text=True)
-        app.logger.info("Request body: " + body)
-        try:
-            handler.handle(body, signature)
-        except InvalidSignatureError:
-            app.logger.error("Invalid signature. Please check your channel access token/channel secret.")
-            abort(400)
-        return 'OK'
+    # get X-Line-Signature header value
+    signature = request.headers['X-Line-Signature']
 
-def handle_local_request(body):
-    event = json.loads(body)['events'][0]
-    user_id = event['source']['userId']
-    msg_text = event['message']['text']
-    fake_event = FakeEvent(user_id, msg_text)
-    response_msg = handle_message(fake_event)
+    # get request body as text
+    body = request.get_data(as_text=True)
+    app.logger.info("Request body: " + body)
+
+    # handle webhook body
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        app.logger.info("Invalid signature. Please check your channel access token/channel secret.")
+        abort(400)
+
+    return 'OK'
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
@@ -83,6 +71,8 @@ def handle_message(event):
     if user_msg in ["開始測試", "重新開始", "a"]:
         evaluator.reset()
         response_msg = evaluator.get_next_question()
+    elif user_msg in ["debug", "d"]:
+        response_msg = TextMessage(text=evaluator.debug())
     elif user_msg == "更多資訊":
         response_msg = TextMessage(text=more_info)
     elif user_msg == "分級表":
@@ -95,26 +85,17 @@ def handle_message(event):
     elif not evaluator.is_init():
         response_msg = TextMessage(text="請輸入「開始測試」來開始評估")
     else:
-        # message = TextMessage(text="請回答 1, 2, 3, 4 或「重新開始」")
         app.logger.info(f"Unknown message: {user_msg}")
-        if os.environ.get('ENV') == 'local':
-            print(f"Unknown message: {user_msg}")
         return
 
-    if os.environ.get('ENV') == 'local':
-        try:
-            print(f"Would send message: {response_msg.text}")
-        except AttributeError:
-            print(f"Would send message: {response_msg}")
-    else:
-        with ApiClient(configuration) as api_client:
-            line_bot_api = MessagingApi(api_client)
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    reply_token=event['replyToken'],
-                    messages=[response_msg]
-                )
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message_with_http_info(
+            ReplyMessageRequest(
+                reply_token=event['replyToken'],
+                messages=[response_msg]
             )
+        )
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
