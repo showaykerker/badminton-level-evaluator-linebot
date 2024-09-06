@@ -77,7 +77,7 @@ def handle_message(event):
         response_msg = TextMessage(text=more_info)
     elif user_msg == "分級表":
         response_msg = ImageMessage(original_content_url=image_url, preview_image_url=image_url)
-    elif user_msg in ["1", "2", "3", "4"] and evaluator.is_init():
+    elif evaluator.valid_answer(user_msg) and evaluator.is_init():
         response_msg = evaluator.answer_question(user_msg)
     elif not evaluator.is_init():
         response_msg = TextMessage(text="請輸入「開始測試」來開始評估")

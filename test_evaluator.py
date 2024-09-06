@@ -89,5 +89,12 @@ class TestEvaluator(unittest.TestCase):
         self.assertIn("User ID: user123", debug_info)
         self.assertIn("評估結果: Beginner", debug_info)
 
+    @patch("builtins.open", new_callable=mock_open, read_data=mock_questions_json)
+    def test_valid_answer(self, mock_file):
+        evaluator = Evaluator("user123")
+        evaluator.reset()
+        self.assertTrue(evaluator.valid_answer("Option 1"))
+        self.assertFalse(evaluator.valid_answer("Option 3"))
+
 if __name__ == '__main__':
     unittest.main()

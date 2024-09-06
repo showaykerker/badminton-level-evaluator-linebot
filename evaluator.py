@@ -25,6 +25,9 @@ class Evaluator:
     def is_init(self):
         return self._init
 
+    def valid_answer(self, answer: str):
+        return any(answer == option['text'] for option in self.questionnaire['questions'][self.current_question_id - 1]['options'])
+
     def get_next_question(self):
         if self.is_completed():
             return self.get_result()
