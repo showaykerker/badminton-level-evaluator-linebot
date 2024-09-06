@@ -85,14 +85,25 @@ def handle_message(event):
         app.logger.info(f"Unknown message: {user_msg}")
         return
 
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-        line_bot_api.reply_message_with_http_info(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[response_msg]
+    try:
+        with ApiClient(configuration) as api_client:
+            line_bot_api = MessagingApi(api_client)
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[response_msg]
+                )
             )
-        )
+    except Exception as e:
+        app.logger.error(f"Failed to reply message: {e}")
+        with ApiClient(configuration) as api_client:
+            line_bot_api = MessagingApi(api_client)
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text="有東西壞掉了QQ，請稍後再試")]
+                )
+            )
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
