@@ -92,7 +92,7 @@ def handle_message(event):
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
-                reply_token=event['replyToken'],
+                reply_token=event.reply_token,
                 messages=[response_msg]
             )
         )

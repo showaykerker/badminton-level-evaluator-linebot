@@ -1,5 +1,10 @@
 import json
-from linebot.models import TextSendMessage, TemplateSendMessage, ButtonsTemplate, MessageAction
+from linebot.v3.messaging import (
+    TextMessage,
+    TemplateMessage,
+    ButtonsTemplate,
+    Action
+)
 
 class Evaluator:
     def __init__(self, user_id: str):
@@ -25,8 +30,8 @@ class Evaluator:
 
         question = self.question_list[self.current_question_index]
         options = self.questions[question]
-        buttons = [MessageAction(label=f"{key}: {value}", text=key) for key, value in options.items()]
-        return TemplateSendMessage(
+        buttons = [Action(label=f"{key}: {value}", text=key) for key, value in options.items()]
+        return TemplateMessage(
             alt_text="問題",
             template=ButtonsTemplate(
                 title="請回答以下問題",
@@ -48,7 +53,7 @@ class Evaluator:
 
         current_question = self.question_list[self.current_question_index]
         if answer not in self.questions[current_question]:
-            return TextSendMessage(text="無效的輸入，請選擇 1, 2, 3, 或 4")
+            return TextMessage(text="無效的輸入，請選擇 1, 2, 3, 或 4")
 
         self.answer[current_question] = answer
         self.current_question_index += 1
@@ -60,7 +65,7 @@ class Evaluator:
 
     def get_result(self):
         level = self.evaluate()
-        return TextSendMessage(text=f"評估完成！您的羽球分級評估為: {level} 級。此結果僅供參考。")
+        return TextMessage(text=f"評估完成！您的羽球分級評估為: {level} 級。此結果僅供參考。")
 
     def debug(self):
         if not self.is_completed():
@@ -152,13 +157,13 @@ def main():
                     print(f"\n{question.template.text}")
                     for action in question.template.actions:
                         print(f"{action.text}: {action.label.split(': ')[1]}")
-                elif isinstance(question, TextSendMessage):
+                elif isinstance(question, TextMessage):
                     print(question.text)
                     break
 
                 answer = input("請輸入您的答案 (1-4): ")
                 result = evaluator.answer_question(answer)
-                if isinstance(result, TextSendMessage):
+                if isinstance(result, TextMessage):
                     print(result.text)
 
             print("\n詳細問卷:")
