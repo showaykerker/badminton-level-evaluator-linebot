@@ -7,6 +7,7 @@ class Evaluator:
             self.questions = json.load(f)
         self.user_id = user_id
         self._init = False
+        self._completed = False
 
     def reset(self):
         self._init = True
@@ -38,6 +39,13 @@ class Evaluator:
         if self.is_completed():
             return self.get_result()
 
+        # 如果完全不了解規則和禮儀，則直接跳過後面所有問題，complete 設為 True
+        if self.current_question_index == 0 and answer == "1":
+            self.answer[self.question_list[0]] = 1
+            self.current_question_index = len(self.question_list) - 1
+            self._completed = True
+            return self.get_result()
+
         current_question = self.question_list[self.current_question_index]
         if answer not in self.questions[current_question]:
             return TextSendMessage(text="無效的輸入，請選擇 1, 2, 3, 或 4")
@@ -48,7 +56,7 @@ class Evaluator:
         return self.get_next_question()
 
     def is_completed(self):
-        return len(self.answer) == len(self.questions)
+        return self._completed or len(self.answer) == len(self.questions)
 
     def get_result(self):
         level = self.evaluate()
