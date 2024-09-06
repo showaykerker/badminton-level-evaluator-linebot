@@ -42,10 +42,11 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
+    app.logger.info(f"Get event: {event}")
     if event.source.type != "user":
         return
-    if event.source.userId not in USER_DATA:
-        USER_DATA[event.source.userId] = {}
+    if event.source.user_id not in USER_DATA:
+        USER_DATA[event.source.user_id] = {}
     with ApiClient(configuration) as api_client:
 
         line_bot_api = MessagingApi(api_client)
