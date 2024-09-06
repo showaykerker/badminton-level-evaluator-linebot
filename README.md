@@ -1,5 +1,7 @@
 # badminton-level-evaluator-linebot
 
+[English Version](README-en.md)
+
 ## 專案緣起
 
 某個晚上突然想到就把頭洗下去了...
