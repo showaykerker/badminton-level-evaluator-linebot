@@ -12,7 +12,7 @@ more_info = """
 - 詳細判斷流程可參考下列連結中的README。
 - 目前測試中，歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
 
-Version：v0.5.4
+Version：v0.5.5
 Author: showaykerker
 GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
 """

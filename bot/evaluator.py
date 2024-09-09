@@ -35,7 +35,11 @@ class Evaluator:
         return self._init
 
     def valid_answer(self, answer: str):
-        return any(answer == option['text'] for option in self.questionnaire['questions'][self.current_question_id - 1]['options'])
+        try:
+            current_options = self.questionnaire['questions'][self.current_question_id - 1]['options']
+            return any(answer == option['text'] for option in current_options)
+        except TypeError:
+            return False
 
     def get_next_question(self):
         if self.is_completed():
