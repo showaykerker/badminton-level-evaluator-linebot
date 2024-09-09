@@ -131,3 +131,43 @@ class Evaluator:
             msg += "評估尚未完成\n"
 
         return msg
+
+if __name__ == "__main__":
+    from messages import more_info, image_url
+    evaluator = Evaluator("test_user")
+    options = []
+    while True:
+        user_msg = input("輸入訊息：")
+        print("\n")
+        if user_msg in ["1", "2", "3", "4"]:
+            user_msg = int(user_msg)
+            user_msg = options[user_msg-1]
+
+        if user_msg in ["開始測試", "重新開始", "a"]:
+            evaluator.reset()
+            response_msg = evaluator.get_next_question()
+        elif user_msg in ["debug", "d"]:
+            response_msg = TextMessage(text=evaluator.debug())
+        elif user_msg == "更多資訊":
+            response_msg = TextMessage(text=more_info)
+        elif user_msg == "分級表":
+            response_msg = ImageMessage(original_content_url=image_url, preview_image_url=image_url)
+        elif evaluator.valid_answer(user_msg) and evaluator.is_init():
+            response_msg = evaluator.answer_question(user_msg)
+        elif not evaluator.is_init():
+            response_msg = TextMessage(text="請輸入「開始測試」來開始評估")
+        elif user_msg == "q":
+            print(evaluator)
+            break
+        else:
+            print(f"Unknown message: {user_msg}")
+
+        options = []
+        if isinstance(response_msg, TextMessage):
+            print(response_msg.text)
+        elif response_msg.template:
+            print(response_msg.template.title)
+            print(response_msg.template.text)
+            for i, action in enumerate(response_msg.template.actions):
+                options.append(action.text)
+                print(f"\t{i+1}. {action.label}")
