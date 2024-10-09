@@ -10,13 +10,14 @@ more_info = """
 
 - 問卷依據台灣羽球推廣協會制定的雙打標準設計。
 - 詳細判斷流程可參考下列連結中的README。
-- 目前測試中，歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
+- 歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
+- 近期計畫將服務改寫成Discord Bot。Line Bot將在移至Discord後停止使用。
 
-Version：v0.5.5
+Version：v0.5.6
 Author: showaykerker
 GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
 """
 
-image_url = "https://scontent-tpe1-1.xx.fbcdn.net/v/t1.6435-9/198038327_324577535828328_6570501766066799730_n.png?_nc_cat=106&ccb=1-7&_nc_sid=f727a1&_nc_ohc=7XJgFbkmYaYQ7kNvgFhG5By&_nc_ht=scontent-tpe1-1.xx&oh=00_AYAwde3o-2Vo2uJLv6c1N6qk_LEha6hAKPUjQGQjVpfm3Q&oe=67026F24"
+image_url = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKNSEJ5TzR_DhW6Vge15SC1rOg17dleYbfsU66L2vZZ2j-09pdy2yaZ1evmrYJH36skVnxcRQzb6w_AQgrkUeiFyVDxe5isKtwxkWiS9tteF-r14b_EyKgzo_ZeUrmgwkN0p7NZQWXZGaH/w448-h640/%25E7%25A8%258B%25E5%25BA%25A6%25E5%2588%2586%25E7%25B4%259A%25E8%25AA%25AA%25E6%2598%258E.png"
 
 # https://www.facebook.com/2020TAIWANBADMINTON/photos/pb.100068630171046.-2207520000/324577532494995/?type=3
