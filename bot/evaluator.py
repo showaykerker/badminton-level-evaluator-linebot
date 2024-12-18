@@ -6,6 +6,8 @@ from linebot.v3.messaging import (
     MessageAction
 )
 
+from messages import note
+
 class Evaluator:
     def __init__(self, user_id: str):
         possible_questions_path = ['questions.json', 'bot/questions.json']
@@ -95,7 +97,7 @@ class Evaluator:
 
     def get_result(self):
         level = self.evaluate()
-        return TextMessage(text=f"評估完成！\n您的羽球分級評估為: {level}。\n此結果僅供參考。")
+        return TextMessage(text=f"評估完成！\n您的羽球分級評估為: {level}。\n此結果僅供參考。\n\n{note}")
 
     def debug(self):
         if not self.is_completed():

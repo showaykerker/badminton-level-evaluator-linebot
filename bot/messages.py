@@ -5,13 +5,19 @@ from linebot.v3.messaging.models import (
     FlexBox,
     Action
 )
+
+note = """
+因在Heroku上架設Line Bot伺服器會產生每月的費用，故正逐步轉移服務至改寫成Discord Bot。Line Bot將在服務完全移至Discord後停止使用。
+請從以下連結將Discord Bot加入好友：https://discord.com/oauth2/authorize?client_id=1318915531994042448
+"""
+
 more_info = """
 羽球等級評估機器人
 
 - 問卷依據台灣羽球推廣協會制定的雙打標準設計。
 - 詳細判斷流程可參考下列連結中的README。
 - 歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
-- 因在Heroku上架設Line伺服器會產生每月的費用，故正逐步轉移服務至改寫成Discord Bot。Line Bot將在服務完全移至Discord後停止使用。
+- 因在Heroku上架設Line Bot伺服器會產生每月的費用，故正逐步轉移服務至改寫成Discord Bot。Line Bot將在服務完全移至Discord後停止使用。
 
 Version：v0.5.6
 Author: showaykerker
