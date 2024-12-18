@@ -1,1 +1,1 @@
-web: python bot/app.py
+web: python -m bot.line.app

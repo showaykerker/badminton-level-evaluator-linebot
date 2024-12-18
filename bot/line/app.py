@@ -16,8 +16,8 @@ from linebot.v3.messaging import (
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
-from messages import more_info, image_url
-from evaluator import Evaluator
+from .messages import more_info, image_url, note
+from ..core.evaluator import Evaluator
 
 if os.environ.get('ENV') != 'production':
     from dotenv import load_dotenv
