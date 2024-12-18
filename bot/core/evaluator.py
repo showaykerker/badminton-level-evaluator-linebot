@@ -99,7 +99,7 @@ class Evaluator:
         msg = f"User ID: {self.user_id}\n"
         msg += "="*20 + "\n"
         for q_id, answer in self.answers.items():
-            msg += f"`{self.questionnaire['questions'][q_id-1]['text']}` | {answer['text']}\n"
+            msg += f"`- {self.questionnaire['questions'][q_id-1]['text']}` ： {answer['text']}\n"
         msg += "="*20 + "\n"
         msg += f"評估結果: **{self.evaluate()}**（結果僅供參考）\n"
         return msg

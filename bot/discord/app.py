@@ -48,7 +48,7 @@ async def on_interaction(interaction):
         elif interaction.data["name"] == "開始測試":
             await interaction.response.defer()
             if interaction.user.id not in evaluators:
-                evaluators[interaction.user.id] = Evaluator(interaction.user.id)
+                evaluators[interaction.user.id] = Evaluator(interaction.user.name)
                 evaluators[interaction.user.id].reset()
             eval_dict = evaluators[interaction.user.id].get_next_question()
             if eval_dict["is_end"]:
@@ -62,7 +62,7 @@ async def on_interaction(interaction):
             await interaction.edit_original_response(content=question, view=view)
         return
     if interaction.user.id not in evaluators:
-        evaluators[interaction.user.id] = Evaluator(interaction.user.id)
+        evaluators[interaction.user.id] = Evaluator(interaction.user.name)
         evaluators[interaction.user.id].reset()
     await interaction.response.defer()
     eval_dict = evaluators[interaction.user.id].answer_question(interaction.data["custom_id"])
