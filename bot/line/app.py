@@ -9,6 +9,7 @@ from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
     Configuration,
     ApiClient,
+    MessageAction,
     MessagingApi,
     ReplyMessageRequest,
     TextMessage,
@@ -48,6 +49,30 @@ def callback():
 
     return 'OK'
 
+def evaluate_dict_to_msg(evaluate_dict: dict):
+    if evaluate_dict['is_end']:
+        level = evaluate_dict['level']
+        return TextMessage(text=f"評估完成！\n您的羽球分級評估為: {level}。\n此結果僅供參考。")
+    else:
+        assert "options" in evaluate_dict
+        assert "question" in evaluate_dict
+        assert "id" in evaluate_dict
+        assert "total" in evaluate_dict
+        buttons = [
+            MessageAction(
+                label=option[:20],  # Label 最多 20 個字
+                text=option
+            ) for option in evaluate_dict['options']
+        ]
+        return TemplateMessage(
+            alt_text="問題",
+            template=ButtonsTemplate(
+                title=f"請回答以下問題 ({evaluate_dict['id']}/{evaluate_dict['total']})",
+                text=evaluate_dict['question'],
+                actions=buttons[:4]  # Line Bot 限制最多 4 個按鈕
+            )
+        )
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     if event.source.type != "user":
@@ -70,7 +95,7 @@ def handle_message(event):
 
     if user_msg in ["開始測試", "重新開始", "a"]:
         evaluator.reset()
-        response_msg = evaluator.get_next_question()
+        response_msg = evaluate_dict_to_msg(evaluator.get_next_question())
     elif user_msg in ["debug", "d"]:
         response_msg = TextMessage(text=evaluator.debug())
     elif user_msg == "更多資訊":

@@ -1,10 +1,5 @@
+from cProfile import label
 import json
-from linebot.v3.messaging import (
-    TextMessage,
-    TemplateMessage,
-    ButtonsTemplate,
-    MessageAction
-)
 
 from messages import note
 
@@ -43,7 +38,7 @@ class Evaluator:
         except TypeError:
             return False
 
-    def get_next_question(self):
+    def get_next_question(self) -> dict:
         if self.is_completed():
             return self.get_result()
 
@@ -53,29 +48,21 @@ class Evaluator:
             return self.get_result()
 
         options = question['options']
-        buttons = [
-            MessageAction(
-                label=option['text'][:20],  # Label 最多 20 個字
-                text=options[i]['text']
-            ) for i, option in enumerate(options)
-        ]
-        return TemplateMessage(
-            alt_text="問題",
-            template=ButtonsTemplate(
-                title=f"請回答以下問題 ({question['id']}/{len(self.questionnaire['questions'])})",
-                text=question['text'],
-                actions=buttons[:4]  # Line Bot 限制最多 4 個按鈕
-            )
-        )
+        return {
+            "is_end": False,
+            "options": [option['text'] for option in options],
+            "question": question['text'],
+            "id": question['id'],
+            "total": len(self.questionnaire['questions'])
+        }
 
-    def answer_question(self, answer: str):
+    def answer_question(self, answer: str) -> dict:
 
         if self.is_completed():
             return self.get_result()
 
         question = next((q for q in self.questionnaire['questions'] if q['id'] == self.current_question_id), None)
-        if not question:
-            return TextMessage(text="問題不存在")
+        assert question, f"Question {self.current_question_id} not found"
 
         # the answer is now the text of the option selected, not the index
         # option = question['options'][int(answer) - 1]
@@ -95,9 +82,11 @@ class Evaluator:
     def is_completed(self):
         return self._completed
 
-    def get_result(self):
-        level = self.evaluate()
-        return TextMessage(text=f"評估完成！\n您的羽球分級評估為: {level}。\n此結果僅供參考。\n\n{note}")
+    def get_result(self) -> dict:
+        return {
+            "is_end": True,
+            "level": self.evaluate(),
+        }
 
     def debug(self):
         if not self.is_completed():
@@ -140,6 +129,7 @@ class Evaluator:
 
 if __name__ == "__main__":
     from messages import more_info, image_url
+    from linebot.v3.messaging import TextMessage
     evaluator = Evaluator("test_user")
     options = []
     while True:
