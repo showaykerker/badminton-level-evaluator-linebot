@@ -1,11 +1,3 @@
-from linebot.v3.messaging.models import (
-    FlexMessage,
-    FlexBubble,
-    FlexComponent,
-    FlexBox,
-    Action
-)
-
 note = """
 因在Heroku上架設Line Bot伺服器會產生每月的費用，故正逐步轉移服務至改寫成Discord Bot。Line Bot將在服務完全移至Discord後停止使用。
 請從以下連結將Discord Bot加入好友：https://discord.com/oauth2/authorize?client_id=1318915531994042448

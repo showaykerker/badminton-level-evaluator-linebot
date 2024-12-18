@@ -1,11 +1,11 @@
-from cProfile import label
+from typing import Optional
 import json
 
 from messages import note
 
 class Evaluator:
-    def __init__(self, user_id: str):
-        possible_questions_path = ['questions.json', 'bot/questions.json']
+    def __init__(self, user_id: Optional[str] = None):
+        possible_questions_path = ['bot/core/questions.json', 'bot/questions.json']
         for path in possible_questions_path:
             try:
                 with open(path, 'r', encoding='utf-8') as f:
@@ -14,13 +14,18 @@ class Evaluator:
             except FileNotFoundError:
                 pass
         else:
-            app.logger.error("quesions.json not found")
             raise FileNotFoundError("questions.json not found")
         self.user_id = user_id
         self._init = False
         self._completed = False
         self.current_question_id = None
         self.answers = {}
+
+    def resume(self, next_question_id:int):
+        self._init = True
+        self._completed = next_question_id > len(self.questionnaire['questions'])
+        self.answers = {}
+        self.current_question_id = next_question_id
 
     def reset(self):
         self._init = True
@@ -88,15 +93,15 @@ class Evaluator:
             "level": self.evaluate(),
         }
 
-    def debug(self):
+    def get_answer_history(self):
         if not self.is_completed():
             return "尚未完成評估"
         msg = f"User ID: {self.user_id}\n"
         msg += "="*20 + "\n"
         for q_id, answer in self.answers.items():
-            msg += f"{q_id} | {answer['text']}\n"
+            msg += f"`{self.questionnaire['questions'][q_id-1]['text']}` | {answer['text']}\n"
         msg += "="*20 + "\n"
-        msg += f"評估結果: {self.evaluate()}\n"
+        msg += f"評估結果: **{self.evaluate()}**（結果僅供參考）\n"
         return msg
 
     def evaluate(self):
@@ -110,7 +115,9 @@ class Evaluator:
         return "無法確定級別"
 
     def __str__(self):
-        msg = f"User ID: {self.user_id}\n"
+        msg = ""
+        if self.user_id:
+            msg += f"User ID: {self.user_id}\n"
         for question in self.questionnaire['questions']:
             msg += f"問題 {question['id']}: {question['text']}\n"
             for option in question['options']:
@@ -121,7 +128,7 @@ class Evaluator:
 
         if self.is_completed():
             level = self.evaluate()
-            msg += f"評估結果: {level}\n"
+            msg += f"評估結果: **{level}** (結果僅供參考)\n"
         else:
             msg += "評估尚未完成\n"
 
