@@ -10,7 +10,10 @@ from ezcord import Bot, emb
 
 from .messages import more_info as info
 from .messages import image_url
+from .db_handler import DBHandler
+from .types_ import User, Answers
 from ..core.evaluator import Evaluator
+from bot.discord import db_handler
 
 dotenv.load_dotenv()
 
@@ -22,9 +25,8 @@ error_embed.set_footer(text="This is a custom footer")
 
 emb.set_embed_templates(error_embed=error_embed)
 
-
-
 bot = Bot()
+db_handler = DBHandler("user.db")
 
 @bot.slash_command(name="更多資訊")
 async def more_info(ctx):
@@ -40,6 +42,7 @@ async def start_test(ctx):
 
 @bot.event
 async def on_interaction(interaction):
+    await db_handler.update_user(interaction.user.id, interaction.user.name)
     if interaction.type != discord.InteractionType.component:
         if interaction.data["name"] == "更多資訊":
             await interaction.response.send_message(info)
@@ -65,7 +68,11 @@ async def on_interaction(interaction):
         evaluators[interaction.user.id] = Evaluator(interaction.user.name)
         evaluators[interaction.user.id].reset()
     await interaction.response.defer()
-    eval_dict = evaluators[interaction.user.id].answer_question(interaction.data["custom_id"])
+    answer_id = evaluators[interaction.user.id].current_question_id
+    answer = interaction.data["custom_id"]
+    eval_dict = evaluators[interaction.user.id].answer_question(answer)
+    result = None if not eval_dict["is_end"] else eval_dict["level"]
+    await db_handler.add_answer(interaction.user.id, answer_id, answer, result=result)
     if eval_dict["is_end"]:
         view = discord.ui.View()
         answer_history_str = evaluators[interaction.user.id].get_answer_history()
