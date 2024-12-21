@@ -1,23 +1,15 @@
 import os
-import re
-import json
 
-import asyncio
 import discord
 import dotenv
-import ezcord
 from ezcord import Bot, emb
 
 from .messages import more_info as info
 from .messages import image_url
 from .db_handler import DBHandler
-from .types_ import User, Answers
 from ..core.evaluator import Evaluator
-from bot.discord import db_handler
 
 dotenv.load_dotenv()
-
-evaluators = {}
 
 # override the default error embed with a custom one
 error_embed = discord.Embed(title="Error", color=discord.Color.orange())
@@ -40,9 +32,20 @@ async def level_table(ctx):
 async def start_test(ctx):
     pass
 
+def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
+    evaluator = Evaluator(user_id)
+    evaluator.reset()
+    if answers is not None:
+        for answer in answers:
+            if answer is None:
+                return evaluator
+            evaluator.answer_question(answer)
+    return evaluator
+
 @bot.event
 async def on_interaction(interaction):
     await db_handler.update_user(interaction.user.id, interaction.user.name)
+    evaluator = None
     if interaction.type != discord.InteractionType.component:
         if interaction.data["name"] == "更多資訊":
             await interaction.response.send_message(info)
@@ -50,10 +53,9 @@ async def on_interaction(interaction):
             await interaction.response.send_message(image_url)
         elif interaction.data["name"] == "開始測試":
             await interaction.response.defer()
-            if interaction.user.id not in evaluators:
-                evaluators[interaction.user.id] = Evaluator(interaction.user.name)
-                evaluators[interaction.user.id].reset()
-            eval_dict = evaluators[interaction.user.id].get_next_question()
+            found_in_db = await db_handler.get_unfinished_answers(interaction.user.id)
+            evaluator = get_evaluator(interaction.user.id, found_in_db)
+            eval_dict = evaluator.get_next_question()
             if eval_dict["is_end"]:
                 await interaction.edit_original_response(content=eval_dict["level"])
                 return
@@ -64,20 +66,19 @@ async def on_interaction(interaction):
                 view.add_item(discord.ui.Button(label=option, custom_id=option))
             await interaction.edit_original_response(content=question, view=view)
         return
-    if interaction.user.id not in evaluators:
-        evaluators[interaction.user.id] = Evaluator(interaction.user.name)
-        evaluators[interaction.user.id].reset()
+    if evaluator is None:
+        found_in_db = await db_handler.get_unfinished_answers(interaction.user.id)
+        evaluator = get_evaluator(interaction.user.id, found_in_db)
     await interaction.response.defer()
-    answer_id = evaluators[interaction.user.id].current_question_id
+    answer_id = evaluator.current_question_id
     answer = interaction.data["custom_id"]
-    eval_dict = evaluators[interaction.user.id].answer_question(answer)
+    eval_dict = evaluator.answer_question(answer)
     result = None if not eval_dict["is_end"] else eval_dict["level"]
     await db_handler.add_answer(interaction.user.id, answer_id, answer, result=result)
     if eval_dict["is_end"]:
         view = discord.ui.View()
-        answer_history_str = evaluators[interaction.user.id].get_answer_history()
+        answer_history_str = evaluator.get_answer_history()
         await interaction.edit_original_response(content=answer_history_str, view=view)
-        del evaluators[interaction.user.id]
         return
     question = eval_dict["question"]
     options = eval_dict["options"]

@@ -1,8 +1,6 @@
 from typing import Optional
 import ezcord
 
-from .types_ import User, Answers
-
 class DBHandler(ezcord.DBHandler):
     def __init__(self, db_path):
         super().__init__(db_path)
@@ -28,6 +26,14 @@ class DBHandler(ezcord.DBHandler):
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """)
+
+    async def get_unfinished_answers(self, user_id: str):
+        unfinished_answers_id = await self.one("SELECT unfinished_answers_id FROM users WHERE user_id = ?", (user_id,))
+        if unfinished_answers_id:
+            found = await self.one("SELECT * FROM answers WHERE id = ?", (unfinished_answers_id,))
+            return found[2:2+11]
+        else:
+            return None
 
     async def update_user(self, user_id: str, username: str):
         # If user already exists, update last_interaction_time, else insert new row
