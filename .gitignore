@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 
 venv-discord/
+
+bot/discord/data/user.db
