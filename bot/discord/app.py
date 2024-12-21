@@ -50,6 +50,12 @@ def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
             evaluator.answer_question(answer)
     return evaluator
 
+# @bot.event
+# async def on_guild_join(guild):
+#     for channel in guild.text_channels:
+#         if channel.permissions_for(guild.me).send_messages:
+#             await channel.send("私訊我開始使用！")
+
 @bot.event
 async def on_message(message):
     if message.author.bot:
