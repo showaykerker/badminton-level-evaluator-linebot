@@ -1,8 +1,6 @@
 from typing import Optional
 import json
 
-from messages import note
-
 class Evaluator:
     def __init__(self, user_id: Optional[str] = None):
         possible_questions_path = ['bot/core/questions.json', 'bot/questions.json']
@@ -31,7 +29,7 @@ class Evaluator:
         self._init = True
         self._completed = False
         self.answers = {}
-        self.current_question_id = 1  # 從第一個問題開始
+        self.current_question_id = 1  # 1-indexed
 
     def is_init(self):
         return self._init
