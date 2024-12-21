@@ -5,7 +5,7 @@ import dotenv
 from ezcord import Bot, emb
 
 from .messages import more_info as info
-from .messages import image_url
+from .messages import image_url, share_msg
 from .db_handler import DBHandler
 from ..core.evaluator import Evaluator
 
@@ -107,9 +107,9 @@ async def on_interaction(interaction):
     evaluator = None
     if interaction.type != discord.InteractionType.component:
         if interaction.data["name"] == "分享連結":
-            msg = f"羽球等級評估機器人 on Discord\nhttps://discord.com/oauth2/authorize?client_id=1318915531994042448"
-            await interaction.response.send_message(msg)
+            await interaction.response.send_message(share_msg)
         elif interaction.data["name"] == "統計":
+            await interaction.response.defer()
             msg = await statistics(interaction)
             await interaction.response.send_message(msg)
         elif interaction.data["name"] == "更多資訊":
