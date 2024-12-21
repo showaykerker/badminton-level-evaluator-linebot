@@ -20,20 +20,24 @@ emb.set_embed_templates(error_embed=error_embed)
 bot = Bot()
 db_handler = DBHandler("bot/discord/data/user.db")
 
-@bot.slash_command(name="更多資訊")
+@bot.slash_command(name="更多資訊", description="檢視專案資訊")
 async def more_info(ctx):
     pass
 
-@bot.slash_command(name="顯示分級表")
+@bot.slash_command(name="顯示分級表", description="顯示分級表")
 async def level_table(ctx):
     pass
 
-@bot.slash_command(name="開始測試")
+@bot.slash_command(name="開始測試", description="開始測試")
 async def start_test(ctx):
     pass
 
-@bot.slash_command(name="分享連結")
+@bot.slash_command(name="分享連結", description="顯示分享連結")
 async def share_link(ctx):
+    pass
+
+@bot.slash_command(name="統計", description="顯示統計資訊")
+async def statistic(ctx):
     pass
 
 def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
