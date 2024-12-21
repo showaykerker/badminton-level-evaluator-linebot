@@ -94,7 +94,7 @@ class Evaluator:
     def get_answer_history(self):
         if not self.is_completed():
             return "尚未完成評估"
-        msg = f"User ID: {self.user_id}\n"
+        msg = f"回答紀錄\n"
         msg += "="*20 + "\n"
         for q_id, answer in self.answers.items():
             msg += f"{q_id}. `{self.questionnaire['questions'][q_id-1]['text']}` ： {answer['text']}\n"
