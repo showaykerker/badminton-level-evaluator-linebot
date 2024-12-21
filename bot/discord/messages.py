@@ -4,7 +4,6 @@ more_info = """
 - 問卷依據台灣羽球推廣協會制定的雙打標準設計。
 - 詳細判斷流程可參考下列連結中的README。
 - 歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
-- 近期計畫將服務改寫成Discord Bot。Line Bot將在移至Discord後停止使用。
 
 Version：v0.5.6
 Author: showaykerker
