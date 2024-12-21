@@ -32,6 +32,10 @@ async def level_table(ctx):
 async def start_test(ctx):
     pass
 
+@bot.slash_command(name="分享連結")
+async def share_link(ctx):
+    pass
+
 def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
     evaluator = Evaluator(user_id)
     evaluator.reset()
@@ -47,7 +51,10 @@ async def on_interaction(interaction):
     await db_handler.update_user(interaction.user.id, interaction.user.name)
     evaluator = None
     if interaction.type != discord.InteractionType.component:
-        if interaction.data["name"] == "更多資訊":
+        if interaction.data["name"] == "分享連結":
+            msg = f"羽球等級評估機器人 on Discord\nhttps://discord.com/oauth2/authorize?client_id=1318915531994042448"
+            await interaction.response.send_message(msg)
+        elif interaction.data["name"] == "更多資訊":
             await interaction.response.send_message(info)
         elif interaction.data["name"] == "顯示分級表":
             await interaction.response.send_message(image_url)
