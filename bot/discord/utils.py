@@ -1,7 +1,15 @@
+from typing import Optional
 import discord
 from ..core.evaluator import Evaluator
 from .db_handler import DBHandler
 import os
+
+async def exec_db_operation(db_handler: DBHandler, exec_str: str) -> Optional[list]:
+    if exec_str.startswith("SELECT"):
+        return await db_handler.all(exec_str)
+    async with db_handler.start() as cursor:
+        await cursor.exec(exec_str)
+    return None
 
 def to_safe_string(s: str):
     return s.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t").replace("`", "'")

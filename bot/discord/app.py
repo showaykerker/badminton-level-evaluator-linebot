@@ -1,4 +1,5 @@
 import os
+import json
 
 import discord
 import dotenv
@@ -7,7 +8,8 @@ from ezcord import Bot, emb
 from .messages import more_info as info
 from .messages import image_url
 from .db_handler import DBHandler
-from .utils import get_evaluator, get_statistics_info, to_safe_string
+from .utils import get_evaluator, get_statistics_info
+from .utils import exec_db_operation, to_safe_string
 
 dotenv.load_dotenv()
 
@@ -34,8 +36,21 @@ async def start_test(ctx):
 async def on_message(message):
     if message.author.bot:
         return
+    if str(message.author.id) == os.getenv("OWNER_ID"):
+        if message.content.startswith("sql "):
+            try:
+                result = await exec_db_operation(db_handler, message.content[4:])
+            except Exception as e:
+                result = str(e)
+            if result:
+                msg = json.dumps(result, indent=4, ensure_ascii=False)
+                await message.reply(f"```\n{msg}\n```")
+            return
     await db_handler.update_user(message.author.id, message.author.name)
-    await db_handler.insert_message(message.author.id, message.author.name, message.content)
+    await db_handler.insert_message(
+        message.author.id,
+        message.author.name,
+        to_safe_string(message.content))
 
 @bot.event
 async def on_interaction(interaction):
