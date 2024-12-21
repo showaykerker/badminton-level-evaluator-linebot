@@ -51,12 +51,60 @@ def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
     return evaluator
 
 @bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    await db_handler.update_user(message.author.id, message.author.name)
+    await db_handler.insert_message(message.author.id, message.author.name, message.content)
+
+async def get_messages(n=10):
+    messages = await db_handler.get_messages(n)
+    return messages or []
+
+def to_safe_string(s: str):
+    return s.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t").replace("`", "'")
+
+async def statistics(interaction):
+    user_count = await db_handler.count_users()
+    answer_count = await db_handler.count_answers()
+    distribution = await db_handler.get_result_distribution()
+    user_id = str(interaction.user.id)
+    msg = ""
+    if user_id == os.getenv("OWNER_ID"):
+        msg += f"使用者數量: {user_count}\n"
+    if answer_count != 0:
+        msg += f"回答數量: {answer_count}\n"
+    if distribution:
+        msg += f"結果分布: \n"
+        for lvl, count in distribution:
+            msg += f"\t\t{lvl}: {count}\n"
+    if user_id == os.getenv("OWNER_ID"):
+        user_name_to_id_dict = {}
+        messages = await get_messages(10)
+        if messages:
+            msg += f"收到的前 {len(messages)} 則訊息:\n"
+            for message in messages:
+                if message[2] not in user_name_to_id_dict:
+                    user_name_to_id_dict[message[2]] = message[1]
+                msg += f"- {message[5]} from **{message[2]}** : `{to_safe_string(message[3])}`\n"
+            msg += f"使用者名單:\n"
+            for user_name, user_id in user_name_to_id_dict.items():
+                msg += f"- {user_name} ({user_id})\n"
+    return msg
+
+
+@bot.event
 async def on_interaction(interaction):
+    if interaction.user.bot:
+        return
     await db_handler.update_user(interaction.user.id, interaction.user.name)
     evaluator = None
     if interaction.type != discord.InteractionType.component:
         if interaction.data["name"] == "分享連結":
             msg = f"羽球等級評估機器人 on Discord\nhttps://discord.com/oauth2/authorize?client_id=1318915531994042448"
+            await interaction.response.send_message(msg)
+        elif interaction.data["name"] == "統計":
+            msg = await statistics(interaction)
             await interaction.response.send_message(msg)
         elif interaction.data["name"] == "更多資訊":
             await interaction.response.send_message(info)

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import ezcord
 
 class DBHandler(ezcord.DBHandler):
@@ -27,6 +27,30 @@ class DBHandler(ezcord.DBHandler):
             );
         """)
 
+        await self.exec("""
+            CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                user_name TEXT,
+                message TEXT,
+                read BOOLEAN DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+    async def insert_message(self, user_id: str, user_name: str, message: str):
+        async with self.start() as cursor:
+            await cursor.exec("INSERT INTO messages (user_id, user_name, message) VALUES (?, ?, ?)", (user_id, user_name, message))
+
+    async def get_messages(self, n=10):
+        messages = await self.all("SELECT * FROM messages WHERE read = 0 ORDER BY created_at ASC")
+        await self.set_message_read([msg[0] for msg in messages])
+        return messages
+
+    async def set_message_read(self, message_ids: List[int]):
+        async with self.start() as cursor:
+            await cursor.exec("UPDATE messages SET read = 1 WHERE id IN ({})".format(", ".join(map(str, message_ids))))
+
     async def get_unfinished_answers(self, user_id: str):
         unfinished_answers_id = await self.one("SELECT unfinished_answers_id FROM users WHERE user_id = ?", (user_id,))
         if unfinished_answers_id:
@@ -34,6 +58,22 @@ class DBHandler(ezcord.DBHandler):
             return found[2:2+11]
         else:
             return None
+
+    async def count_users(self):
+        return await self.one("SELECT COUNT(*) FROM users")
+
+    async def count_answers(self):
+        return await self.one("SELECT COUNT(*) FROM answers")
+
+    async def get_result_distribution(self):
+        def _sort(tup):
+            # [('初中階 - 6級', 1), ('新手階 - 1級', 2)]
+            tup.sort(key=lambda x: x[0].split(" - ")[-1][0], reverse=False)
+            return tup
+        result = await self.all("SELECT result, COUNT(*) FROM answers GROUP BY result")
+        if result:
+            result = _sort(result)
+        return result
 
     async def update_user(self, user_id: str, username: str):
         # If user already exists, update last_interaction_time, else insert new row
