@@ -18,7 +18,7 @@ error_embed.set_footer(text="This is a custom footer")
 emb.set_embed_templates(error_embed=error_embed)
 
 bot = Bot()
-db_handler = DBHandler("user.db")
+db_handler = DBHandler("bot/discord/data/user.db")
 
 @bot.slash_command(name="更多資訊")
 async def more_info(ctx):
