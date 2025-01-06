@@ -10,7 +10,7 @@ note = """
 ===============
 
 因目前在Heroku上架設Line Bot伺服器會產生每月的費用，故正逐步轉移服務至改寫成Discord Bot。Line Bot將在服務完全移至Discord後停止使用。
-請從以下連結將Discord Bot加入好友：https://discord.gg/RjsukYUW
+請從以下連結將Discord Bot加入好友：https://discord.gg/VeRKkscwdg
 
 """
 
@@ -25,7 +25,7 @@ more_info = """
 Version：v0.5.6
 Author: showaykerker
 GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
-Discord Bot: https://discord.gg/RjsukYUW
+Discord Bot: https://discord.gg/VeRKkscwdg
 """
 
 image_url = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKNSEJ5TzR_DhW6Vge15SC1rOg17dleYbfsU66L2vZZ2j-09pdy2yaZ1evmrYJH36skVnxcRQzb6w_AQgrkUeiFyVDxe5isKtwxkWiS9tteF-r14b_EyKgzo_ZeUrmgwkN0p7NZQWXZGaH/w448-h640/%25E7%25A8%258B%25E5%25BA%25A6%25E5%2588%2586%25E7%25B4%259A%25E8%25AA%25AA%25E6%2598%258E.png"
