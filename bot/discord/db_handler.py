@@ -71,8 +71,6 @@ class DBHandler(ezcord.DBHandler):
             data = []
             for item in tup:
                 name = item[0]
-                if name == "高階/職業級 - 13~18級":
-                    name = "高階↑ - 13級↑"
                 data.append((name, item[1]))
             data.sort(
                 key=lambda x: int(x[0].split(" - ")[-1].split("級")[0].split("~")[0]),

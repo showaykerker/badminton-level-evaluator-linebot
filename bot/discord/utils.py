@@ -94,7 +94,6 @@ async def get_statistics_info(
             + _pad_ljust(headers[0], col1_w)
             + " "
             + _pad_rjust(headers[1], col2_w)
-            + " \n"
         )
         table = header_line + "\n" + "-" * length + "\n"
         for lvl, count in rows:
