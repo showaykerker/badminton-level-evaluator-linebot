@@ -6,7 +6,7 @@ more_info = """
 - 歡迎直接在聊天視窗提供意見與建議或是貢獻程式碼。
 - 邀請朋友使用：https://discord.gg/gX2KBskv
 
-Version：v0.5.6
+Version：v0.5.7
 Author: showaykerker
 GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
 """

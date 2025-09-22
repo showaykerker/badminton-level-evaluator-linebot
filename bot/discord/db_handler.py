@@ -68,7 +68,7 @@ class DBHandler(ezcord.DBHandler):
     async def get_result_distribution(self):
         def _sort(tup):
             # [('初中階 - 6級', 1), ('新手階 - 1級', 2)]
-            tup.sort(key=lambda x: x[0].split(" - ")[-1][0], reverse=False)
+            tup.sort(key=lambda x: int(x[0].split(" - ")[-1].split("級")[0].split("~")[0]), reverse=False)
             return tup
         result = await self.all("SELECT result, COUNT(*) FROM answers GROUP BY result")
         if result:

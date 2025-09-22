@@ -1,6 +1,6 @@
 # TODO (Discord Bot Version)
 
-- [ ] Edit Messages
-- [ ] Containerize the bot
-- [ ] Deploy on RPi
-- [ ] Add support for statistics
+- [x] Edit Messages
+- [x] Containerize the bot
+- [x] Deploy on RPi
+- [x] Add support for statistics
