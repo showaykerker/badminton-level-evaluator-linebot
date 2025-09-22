@@ -68,8 +68,17 @@ class DBHandler(ezcord.DBHandler):
     async def get_result_distribution(self):
         def _sort(tup):
             # [('初中階 - 6級', 1), ('新手階 - 1級', 2)]
-            tup.sort(key=lambda x: int(x[0].split(" - ")[-1].split("級")[0].split("~")[0]), reverse=False)
-            return tup
+            data = []
+            for item in tup:
+                name = item[0]
+                if name == "高階/職業級 - 13~18級":
+                    name = "高階↑ - 13級↑"
+                data.append((name, item[1]))
+            data.sort(
+                key=lambda x: int(x[0].split(" - ")[-1].split("級")[0].split("~")[0]),
+                reverse=False
+            )
+            return data
         result = await self.all("SELECT result, COUNT(*) FROM answers GROUP BY result")
         if result:
             result = _sort(result)

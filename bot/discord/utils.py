@@ -3,16 +3,27 @@ import discord
 from ..core.evaluator import Evaluator
 from .db_handler import DBHandler
 import os
+from wcwidth import wcswidth
 
-async def exec_db_operation(db_handler: DBHandler, exec_str: str) -> Optional[list]:
+
+async def exec_db_operation(
+    db_handler: DBHandler, exec_str: str
+) -> Optional[list]:
     if exec_str.startswith("SELECT"):
         return await db_handler.all(exec_str)
     async with db_handler.start() as cursor:
         await cursor.exec(exec_str)
     return None
 
+
 def to_safe_string(s: str):
-    return s.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t").replace("`", "'")
+    return (
+        s.replace("\n", "\\n")
+         .replace("\r", "\\r")
+         .replace("\t", "\\t")
+         .replace("`", "'")
+    )
+
 
 def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
     evaluator = Evaluator(user_id)
@@ -24,11 +35,43 @@ def get_evaluator(user_id: str, answers: list[str]) -> Evaluator:
             evaluator.answer_question(answer)
     return evaluator
 
+ 
+
 async def get_messages(db_handler: DBHandler, n=10):
     messages = await db_handler.get_messages(n)
     return messages or []
 
-async def get_statistics_info(interaction: discord.Interaction, db_handler: DBHandler):
+ 
+
+def _disp_width(text: str) -> int:
+    width = wcswidth(text)
+    return width if width >= 0 else len(text)
+
+
+def _pad_ljust(text: str, width: int) -> str:
+    need = width - _disp_width(text)
+    if need <= 0:
+        return text
+    # Prefer full-width spaces (U+3000) for CJK-friendly padding
+    full = need // 2
+    half = need % 2
+    return text + ("　" * full) + (" " * half)
+
+
+def _pad_rjust(text: str, width: int) -> str:
+    need = width - _disp_width(text)
+    if need <= 0:
+        return text
+    full = need // 2
+    half = need % 2
+    return ("　" * full) + (" " * half) + text
+
+
+ 
+
+async def get_statistics_info(
+    interaction: discord.Interaction, db_handler: DBHandler
+):
     user_count = await db_handler.count_users()
     answer_count = await db_handler.count_answers()
     distribution = await db_handler.get_result_distribution()
@@ -37,9 +80,33 @@ async def get_statistics_info(interaction: discord.Interaction, db_handler: DBHa
     if answer_count != 0:
         msg += f"回答數量: {answer_count}\n"
     if distribution:
-        msg += f"結果分布: \n"
-        for lvl, count in distribution:
-            msg += f"\t\t{lvl}: {count}\n"
+        msg += "結果分布: \n"
+        # Build a width-aware ASCII table and wrap in a code block to force monospace rendering
+        headers = ["結果", "數量"]
+        rows = [(str(lvl), str(count)) for lvl, count in distribution]
+        col1_w = max(_disp_width(headers[0]), max(_disp_width(r[0]) for r in rows)) + 1
+        col2_w = max(_disp_width(headers[1]), max(_disp_width(r[1]) for r in rows)) + 1
+
+        length = col1_w + col2_w + 3
+
+        header_line = (
+            " "
+            + _pad_ljust(headers[0], col1_w)
+            + " "
+            + _pad_rjust(headers[1], col2_w)
+            + " \n"
+        )
+        table = header_line + "\n" + "-" * length + "\n"
+        for lvl, count in rows:
+            line = (
+                " "
+                + _pad_ljust(lvl, col1_w)
+                + " "
+                + _pad_rjust(count, col2_w)
+                + " \n"
+            )
+            table += line
+        msg += "```\n" + table + "```\n"
     if user_id == os.getenv("OWNER_ID"):
         msg += f"使用者數量: {user_count}\n"
         user_name_to_id_dict = {}
@@ -49,8 +116,11 @@ async def get_statistics_info(interaction: discord.Interaction, db_handler: DBHa
             for message in messages:
                 if message[2] not in user_name_to_id_dict:
                     user_name_to_id_dict[message[2]] = message[1]
-                msg += f"- {message[5]} from **{message[2]}** : `{to_safe_string(message[3])}`\n"
-            msg += f"使用者名單:\n"
+                msg += (
+                    f"- {message[5]} from **{message[2]}** : "
+                    f"`{to_safe_string(message[3])}`\n"
+                )
+            msg += "使用者名單:\n"
             for user_name, user_id in user_name_to_id_dict.items():
                 msg += f"- {user_name} ({user_id})\n"
     return msg

@@ -1,0 +1,8 @@
+services:
+  badminton-dc-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./bot/discord/data:/app/bot/discord/data
+    restart: on-failure
