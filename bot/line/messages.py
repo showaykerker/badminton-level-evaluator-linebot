@@ -17,6 +17,16 @@ GitHub: https://github.com/showaykerker/badminton-level-evaluator-linebot
 Discord Bot: https://discord.com/oauth2/authorize?client_id=1318915531994042448
 """
 
+dm_guidance = "請點選機器人的頭像，並透過私訊（DM）傳送訊息給機器人使用喔！"
+
+usage_guidance = """這裡是羽球等級評估機器人，請使用以下指令：
+
+• 「開始測試」或「重新開始」- 開始 / 重新開始等級評估
+• 「更多資訊」- 查看更多關於此機器人的資訊
+• 「分級表」- 查看分級表圖片
+
+也歡迎直接在這裡留下您的使用建議與回饋！"""
+
 image_url = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKNSEJ5TzR_DhW6Vge15SC1rOg17dleYbfsU66L2vZZ2j-09pdy2yaZ1evmrYJH36skVnxcRQzb6w_AQgrkUeiFyVDxe5isKtwxkWiS9tteF-r14b_EyKgzo_ZeUrmgwkN0p7NZQWXZGaH/w448-h640/%25E7%25A8%258B%25E5%25BA%25A6%25E5%2588%2586%25E7%25B4%259A%25E8%25AA%25AA%25E6%2598%258E.png"
 
 # https://www.facebook.com/2020TAIWANBADMINTON/photos/pb.100068630171046.-2207520000/324577532494995/?type=3

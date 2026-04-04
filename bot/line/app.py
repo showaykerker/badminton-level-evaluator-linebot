@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 from flask import Flask, request, abort
 from linebot.v3 import (
@@ -17,7 +18,7 @@ from linebot.v3.messaging import (
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
-from .messages import more_info, image_url, note
+from .messages import more_info, image_url, note, dm_guidance, usage_guidance
 from ..core.evaluator import Evaluator
 
 if os.environ.get('ENV') != 'production':
@@ -30,6 +31,19 @@ configuration = Configuration(access_token=os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 
 EVALUATORS = {}
+
+RATE_LIMIT_SECONDS = 86400  # 1 day
+_non_dm_rate_limit = {}  # user_id -> last_reply_timestamp
+_unknown_msg_rate_limit = {}  # user_id -> last_reply_timestamp
+
+
+def _is_rate_limited(store: dict, user_id: str) -> bool:
+    now = time.time()
+    last_time = store.get(user_id, 0)
+    if now - last_time < RATE_LIMIT_SECONDS:
+        return True
+    store[user_id] = now
+    return False
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -77,6 +91,19 @@ def evaluate_dict_to_msg(evaluate_dict: dict):
 def handle_message(event):
     if event.source.type != "user":
         app.logger.info(f"Source type is not user: {event.source}")
+        source_user_id = getattr(event.source, 'user_id', None)
+        if source_user_id and not _is_rate_limited(_non_dm_rate_limit, source_user_id):
+            try:
+                with ApiClient(configuration) as api_client:
+                    line_bot_api = MessagingApi(api_client)
+                    line_bot_api.reply_message_with_http_info(
+                        ReplyMessageRequest(
+                            reply_token=event.reply_token,
+                            messages=[TextMessage(text=dm_guidance)]
+                        )
+                    )
+            except Exception as e:
+                app.logger.error(f"Failed to reply non-DM guidance: {e}")
         return
 
     try:
@@ -108,7 +135,10 @@ def handle_message(event):
         response_msg = TextMessage(text="請輸入「開始測試」來開始評估")
     else:
         app.logger.info(f"Unknown message: {user_msg}")
-        return
+        if not _is_rate_limited(_unknown_msg_rate_limit, user_id):
+            response_msg = TextMessage(text=usage_guidance)
+        else:
+            return
 
     try:
         with ApiClient(configuration) as api_client:
